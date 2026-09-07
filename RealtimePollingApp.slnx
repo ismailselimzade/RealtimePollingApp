@@ -1,0 +1,4 @@
+<Solution>
+  <Project Path="RealtimePollingApp.Client/RealtimePollingApp.Client.csproj" />
+  <Project Path="RealtimePollingApp.Server/RealtimePollingApp.Server.csproj" />
+</Solution>
