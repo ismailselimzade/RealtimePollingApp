@@ -16,19 +16,26 @@ app.Map("/ws", async  (HttpContext context) =>
 
         byte[] buffer = new byte[1024];
 
-        while (webSocket.State == WebSocketState.Open)
+        try
         {
-            var receiveResult = await webSocket.ReceiveAsync(buffer, CancellationToken.None);
-
-            if (receiveResult.MessageType == WebSocketMessageType.Close)
+            while (webSocket.State == WebSocketState.Open)
             {
-                await webSocket.CloseAsync(WebSocketCloseStatus.NormalClosure, "Connection closed", CancellationToken.None);
-                break;
-            }
+                var receiveResult = await webSocket.ReceiveAsync(buffer, CancellationToken.None);
 
-            var responseMessage = $"Server ?: {Encoding.UTF8.GetString(buffer, 0, receiveResult.Count)}";
-            
-            await webSocket.SendAsync(Encoding.UTF8.GetBytes(responseMessage), WebSocketMessageType.Text, true, CancellationToken.None);
+                if (receiveResult.MessageType == WebSocketMessageType.Close)
+                {
+                    await webSocket.CloseAsync(WebSocketCloseStatus.NormalClosure, "Connection closed", CancellationToken.None);
+                    break;
+                }
+
+                var responseMessage = $"Server ?: {Encoding.UTF8.GetString(buffer, 0, receiveResult.Count)}";
+
+                await webSocket.SendAsync(Encoding.UTF8.GetBytes(responseMessage), WebSocketMessageType.Text, true, CancellationToken.None);
+            }
+        }
+        catch (WebSocketException ex)
+        {
+            Console.WriteLine(ex.Message);
         }
     }
     else
