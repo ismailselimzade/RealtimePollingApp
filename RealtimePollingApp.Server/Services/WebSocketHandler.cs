@@ -25,9 +25,21 @@ namespace RealtimePollingApp.Server.Services
                         break;
                     }
 
-                    var responseMessage = $"Server ?: {Encoding.UTF8.GetString(buffer, 0, receiveResult.Count)}";
+                    var responseMessage = Encoding.UTF8.GetBytes($"Client {id} message: {Encoding.UTF8.GetString(buffer, 0, receiveResult.Count)}");
 
-                    await webSocket.SendAsync(Encoding.UTF8.GetBytes(responseMessage), WebSocketMessageType.Text, true, CancellationToken.None);
+                    var AllWebSockets = connectionManager.GetAllExcept(id);
+
+                    foreach (var ws in AllWebSockets)
+                    {
+                        try
+                        {
+                            await ws.SendAsync(responseMessage, WebSocketMessageType.Text, true, CancellationToken.None);
+                        }
+                        catch (WebSocketException ex)
+                        {
+                            Console.WriteLine($"Failed to send to a client: {ex.Message}");
+                        }
+                    }
                 }
             }
             catch (WebSocketException ex)

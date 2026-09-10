@@ -19,5 +19,10 @@ namespace RealtimePollingApp.Server.Services
         {
             return _connections.Values;
         }
+
+        public IEnumerable<WebSocket> GetAllExcept(string id)
+        {
+            return _connections.Where(s=> s.Key != id).Select(s => s.Value);
+        }
     }
 }
