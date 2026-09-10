@@ -1,19 +1,25 @@
+using RealtimePollingApp.Server.Services;
 using System.Net.WebSockets;
 using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
+
+builder.Services.AddSingleton<ConnectionManager>();
+builder.Services.AddSingleton<IdGenerator>();
 var app = builder.Build();
 
 app.UseWebSockets();
 
-app.MapGet("/", () => "Hello World!");
 
-app.Map("/ws", async  (HttpContext context) =>
+app.Map("/ws", async (HttpContext context, ConnectionManager connectionManager, IdGenerator idGenerator) =>
 {
     if (context.WebSockets.IsWebSocketRequest)
     {
         var webSocket = await context.WebSockets.AcceptWebSocketAsync();
+        string id = idGenerator.GenerateId();
 
+        connectionManager.Add(id, webSocket);
+        Console.WriteLine($"Client connected: {id}");
         byte[] buffer = new byte[1024];
 
         try
@@ -36,6 +42,12 @@ app.Map("/ws", async  (HttpContext context) =>
         catch (WebSocketException ex)
         {
             Console.WriteLine(ex.Message);
+        }
+        finally
+        {
+            connectionManager.Remove(id);
+            Console.WriteLine($"Client disconnected: {id}");
+
         }
     }
     else

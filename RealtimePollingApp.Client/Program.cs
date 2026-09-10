@@ -1,8 +1,6 @@
 ﻿using System.Net.WebSockets;
 using System.Text;
 
-Console.WriteLine("Hello, World!");
-
 var client = new ClientWebSocket();
 
 await client.ConnectAsync(new Uri("wss://localhost:7062/ws"), CancellationToken.None);
